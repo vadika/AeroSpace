@@ -1,5 +1,8 @@
 name: build
 
+permissions:
+  contents: read
+
 on:
   push:
     branches:
@@ -57,6 +60,13 @@ jobs:
           # "-" means "Sign to run locally". There is no aerospace-codesign-certificate on GH Actions
           ./build-release.sh --codesign-identity -
           ./install-from-sources.sh --dont-rebuild
+      - name: Upload preview artifact
+        id: upload-preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: AeroSpace-preview-${{ matrix.os }}-${{ github.sha }}
+          path: ./.release/AeroSpace-v0.0.0-SNAPSHOT
+          retention-days: 7
       - name: cat ./.release/xcodebuild.log
         if: ${{ always() }}
         run: 'if test -f ./.release/xcodebuild.log; then cat ./.release/xcodebuild.log; fi'
